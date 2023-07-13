@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 import openai
 
-class AutoPrompt:
+class hello:
     def __init__(self):
         self.app = Flask(__name__)
 
@@ -40,5 +40,5 @@ class AutoPrompt:
         self.app.run(host=host, port=port)
 
 if __name__ == '__main__':
-    my_app = AutoPrompt()
+    my_app = hello()
     my_app.run()
