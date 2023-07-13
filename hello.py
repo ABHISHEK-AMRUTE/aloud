@@ -25,12 +25,13 @@ class hello:
             response = openai.ChatCompletion.create(
                 engine="dorkupinetreeGPT35",
                 messages=[
-                    {"role": "system", "content": "You are an analyzer and summarizer system that takes the following input : \n" +
-                "1. Details : "+ data['requests']['objective'] +"\n" +
-                "2.Objective : " + data['requests']['details'] + "\n" +
-                "3. metrics : [{\"ObyVi\" : \"This means total users who've placed an order divided by (total users who visited the platform)},{\"AOV\":\"This is the average sale made by users on the platform\"},{\"Cancellation\" : \"Users who cancel an order\"},{\"Return rate\" : \"Users who've returned an order\"},{\"Seller_exp\" : \"Bad seller experience\"},{\"First time app open date\" : \"When did the user first came to the platform?\"}]"},
+                    {"role": "system",
+                     "content": "You are an analyzer and summarizer system that takes the following input : \n" +
+                                "1. Details : " + data['requests']['objective'] + "\n" +
+                                "2.Objective : " + data['requests']['details'] + "\n" +
+                                "3. metrics : [{\"ObyVi\" : \"This means total users who've placed an order divided by (total users who visited the platform)},{\"AOV\":\"This is the average sale made by users on the platform\"},{\"Cancellation\" : \"Users who cancel an order\"},{\"Return rate\" : \"Users who've returned an order\"},{\"Seller_exp\" : \"Bad seller experience\"},{\"First time app open date\" : \"When did the user first came to the platform?\"}]"},
                     {"role": "user",
-                     "content": "provide the only metrics that will be closely impacted for the given details and objective from list of metrics provided. Also provide set of minimum 5 very very simple questions that must be asked to the customer of my e-commerce platform. The questions that I want to ask should just be around the details and objective that I've mentioned above (and nothing generic) Remember that my customers are extremely not tech savvy. PLease make simple questions that are easy for the user but important for me. Adapt the response in below format and add questions in key lod_deeds of response format"
+                     "content": "provide the only metrics that will be closely impacted for the given details and objective from list of metrics provided. Also provide set of minimum 5 very very simple questions that must be asked to the customer of my e-commerce platform. The questions that I want to ask should just be around the details and objective that I've mentioned above (and nothing generic) Remember that my customers are extremely not tech savvy. PLease make simple questions that are easy for the user but important for me. Adapt the response in below format and add questions in key lod_deeds of response format. The response should be strictly in format"
                      "{\"Response\": \n"
                                 " {\n" +
                                 "    \"metrics\": [\n" +
@@ -55,8 +56,7 @@ class hello:
                 stop=None
             )
             print(response)
-            ct = response.choices[0].message.content;
-            print(ct)
+            ct = response.choices[0].message.content
             return ct
 
     def run(self, host='0.0.0.0', port=5031):
