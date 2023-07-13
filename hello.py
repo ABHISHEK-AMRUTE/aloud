@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, json
 import openai
 
+
 class hello:
     def __init__(self):
         self.app = Flask(__name__)
@@ -23,10 +24,11 @@ class hello:
             response = openai.ChatCompletion.create(
                 engine="dorkupinetreeGPT35",
                 messages=[
-                    {"role": "system", "content": "You are an analyzer and summarizer system that takes the following input : \n" +
-                "1. Details : "+ data['requests']['objective'] +"\n" +
-                "2.Objective : " + data['requests']['details'] + "\n" +
-                "3. metrics : [{\"ObyVi\" : \"This means total users who've placed an order divided by (total users who visited the platform)},{\"AOV\":\"This is the average sale made by users on the platform\"},{\"Cancellation\" : \"Users who cancel an order\"},{\"Return rate\" : \"Users who've returned an order\"},{\"Seller_exp\" : \"Bad seller experience\"},{\"First time app open date\" : \"When did the user first came to the platform?\"}]"},
+                    {"role": "system",
+                     "content": "You are an analyzer and summarizer system that takes the following input : \n" +
+                                "1. Details : " + data['requests']['objective'] + "\n" +
+                                "2.Objective : " + data['requests']['details'] + "\n" +
+                                "3. metrics : [{\"ObyVi\" : \"This means total users who've placed an order divided by (total users who visited the platform)},{\"AOV\":\"This is the average sale made by users on the platform\"},{\"Cancellation\" : \"Users who cancel an order\"},{\"Return rate\" : \"Users who've returned an order\"},{\"Seller_exp\" : \"Bad seller experience\"},{\"First time app open date\" : \"When did the user first came to the platform?\"}]"},
                     {"role": "user",
                      "content": "provide the only metrics that will be closely impacted for the given details and objective from list of metrics provided. Also provide set of minimum 5 very very simple questions that must be asked to the customer of my e-commerce platform. The questions that I want to ask should just be around the details and objective that I've mentioned above (and nothing generic) Remember that my customers are extremely not tech savvy. PLease make simple questions that are easy for the user but important for me. Adapt the response in below format and add questions in key lod_deeds {\n" +
                                 "    \"metrics\": [\n" +
@@ -53,8 +55,36 @@ class hello:
             ct = response.choices[0].message.content;
             return ct
 
+        # Route for OpenAI API integration
+        @self.app.route('/chat-bot', methods=['POST'])
+        def chat_bot():
+            data = json.loads(request.data)
+            assistantQues = data['requests']['ques'];
+            userAns = data['requests']['ans'];
+            response = openai.ChatCompletion.create(
+                engine="dorkupinetreeGPT35",
+                messages=[
+                    {"role": "system",
+                     "content": "You are an bot that receives the response from the user for the questions raised by assistant and answers him politely and calmly in thanking tone for his inputs in one short reply that does not raise question to user"},
+                    {"role": "assistant",
+                     "content": assistantQues},
+                    {"role": "user",
+                     "content": userAns}
+                ],
+                temperature=0.2,
+                max_tokens=800,
+                top_p=0.95,
+                frequency_penalty=0,
+                presence_penalty=0,
+                stop=None
+            )
+            print(response)
+            ct = response.choices[0].message.content;
+            return ct
+
     def run(self, host='0.0.0.0', port=5099):
         self.app.run(host=host, port=port)
+
 
 if __name__ == '__main__':
     my_app = hello()
