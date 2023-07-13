@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, json
 import openai
 import sqlite3
 
+
 class hello:
     def __init__(self):
         self.app = Flask(__name__)
@@ -33,7 +34,7 @@ class hello:
                                 "3. metrics : [{\"ObyVi\" : \"This means total users who've placed an order divided by (total users who visited the platform)},{\"AOV\":\"This is the average sale made by users on the platform\"},{\"Cancellation\" : \"Users who cancel an order\"},{\"Return rate\" : \"Users who've returned an order\"},{\"Seller_exp\" : \"Bad seller experience\"},{\"First time app open date\" : \"When did the user first came to the platform?\"}]"},
                     {"role": "user",
                      "content": "provide the only metrics that will be closely impacted for the given details and objective from list of metrics provided. Also provide set of minimum 5 very very simple questions that must be asked to the customer of my e-commerce platform. The questions that I want to ask should just be around the details and objective that I've mentioned above (and nothing generic) Remember that my customers are extremely not tech savvy. PLease make simple questions that are easy for the user but important for me. Adapt the response in below format and add questions in key lod_deeds of response format. The response should be strictly in format"
-                     "{\"Response\": \n"
+                                "{\"Response\": \n"
                                 " {\n" +
                                 "    \"metrics\": [\n" +
                                 "        {\n" +
@@ -87,7 +88,6 @@ class hello:
             type_of_summary = data['requests']['type_of_summary'];
             cohort = data['requests']['cohort'];
 
-
             query = res.fetchall()
 
             summaries = []
@@ -107,9 +107,11 @@ class hello:
                     {"role": "user", "content": str(i[4])},
                     {"role": "assistant", "content": "Does getting your order late lead to higher returns?"},
                     {"role": "user", "content": str(i[5])},
-                    {"role": "assistant", "content": "Do you cancel your orders in case delivery date is high for you?"},
+                    {"role": "assistant",
+                     "content": "Do you cancel your orders in case delivery date is high for you?"},
                     {"role": "user", "content": str(i[6])},
-                    {"role": "system", "content": "Summarize the above conversation between assistant and user with respect to the content provided earlier to the system."}
+                    {"role": "system",
+                     "content": "Summarize the above conversation between assistant and user with respect to the content provided earlier to the system."}
                 ]
 
                 # Call OpenAI API
@@ -146,14 +148,70 @@ class hello:
                 frequency_penalty=0,
                 presence_penalty=0,
                 stop=None)
-
-
             return response
 
+        # Route for OpenAI API integration
+        @self.app.route('/chat-bot', methods=['POST'])
+        def chat_bot():
+            data = json.loads(request.data)
+            assistantQues = data['requests']['ques'];
+            userAns = data['requests']['ans'];
+            response = openai.ChatCompletion.create(
+                engine="dorkupinetreeGPT35",
+                messages=[
+                    {"role": "system",
+                     "content": "You are an bot that receives the response from the user for the questions raised by assistant and answers him politely and calmly in thanking tone for his inputs in one short reply that does not raise question to user"},
+                    {"role": "assistant",
+                     "content": assistantQues},
+                    {"role": "user",
+                     "content": userAns}
+                ],
+                temperature=0.2,
+                max_tokens=800,
+                top_p=0.95,
+                frequency_penalty=0,
+                presence_penalty=0,
+                stop=None
+            )
+            print(response)
+            ct = response.choices[0].message.content;
+            return ct
+
+            # Route for OpenAI API integration
+
+        @self.app.route('/chat-botx', methods=['POST'])
+        def chat_botx():
+            data = json.loads(request.data)
+            assistantQues = data['requests']['ques'];
+            userAns = data['requests']['ans'];
+            assistantNextQues = data['requests']['nextQues'];
+            details = data['requests']['details'];
+            objective = data['requests']['objective'];
+            response = openai.ChatCompletion.create(
+                engine="dorkupinetreeGPT35",
+                messages=[
+                    {"role": "system",
+                     "content": "You are an bot that receives the three inputs i.e. 1) Question asked by assistant 2) response from the user for the question asked by assistant 3) next ques that must be asked by assistant. you need to return the next simple brief question that must me asked from user to collect data based regarding brief and description attached. Always be polite and calm in conversation. Make sure not to ask any such questions that can't be derived from input data given to system. the context for conversation is related to " + "1. Details : " + details +
+                                "2.Objective : " + objective},
+                    {"role": "user",
+                     "content": userAns},
+                    {"role": "assistant",
+                     "content": assistantNextQues}
+                ],
+                temperature=0.2,
+                max_tokens=800,
+                top_p=0.95,
+                frequency_penalty=0,
+                presence_penalty=0,
+                stop=None
+            )
+            print(response)
+            ct = response.choices[0].message.content;
+            return ct
 
     def run(self, host='0.0.0.0', port=5031):
-
         self.app.run(host=host, port=port)
+
 
 if __name__ == '__main__':
     my_app = hello()
