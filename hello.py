@@ -187,24 +187,37 @@ class hello:
             assistantNextQues = data['requests']['nextQues'];
             details = data['requests']['details'];
             objective = data['requests']['objective'];
+
+            if s is None or s == '':
+                contVal = "You are an bot that receives the response from the user for the questions raised by assistant and answers him politely and calmly in thanking tone for his inputs in one short reply that does not raise question to user";
+                assistantNextQues = "";
+            else:
+                contVal = "You are an bot that receives the three inputs i.e. 1) Question asked by assistant 2) response from the user for the question asked by assistant 3) next ques that must be asked by assistant. you need to return the next simple brief question that must me asked from user to collect data based regarding brief and description attached based on. Always be polite and calm in conversation. Make sure not to ask any such questions that can't be derived from input data given to system. the context for conversation is related to " + "1. Details : " + details + "2.Objective : " + objective + ". Make sure the user must not feel that he is talking to bot. In case you don't have refererce to the chat context return the assistant Next Ques";
+
             response = openai.ChatCompletion.create(
                 engine="dorkupinetreeGPT35",
                 messages=[
                     {"role": "system",
-                     "content": "You are an bot that receives the three inputs i.e. 1) Question asked by assistant 2) response from the user for the question asked by assistant 3) next ques that must be asked by assistant. you need to return the next simple brief question that must me asked from user to collect data based regarding brief and description attached. Always be polite and calm in conversation. Make sure not to ask any such questions that can't be derived from input data given to system. the context for conversation is related to " + "1. Details : " + details +
-                                "2.Objective : " + objective},
+                     "content": contVal},
+                     {"role": "assistant",
+                      "content": "assistant ques " + assistantQues},
                     {"role": "user",
-                     "content": userAns},
+                     "content": "user ans is " + userAns},
                     {"role": "assistant",
-                     "content": assistantNextQues}
+                     "content": "assistant Next Ques is " + assistantNextQues}
                 ],
-                temperature=0.2,
+                temperature=0.1,
                 max_tokens=800,
                 top_p=0.95,
                 frequency_penalty=0,
                 presence_penalty=0,
                 stop=None
             )
+            # con = sqlite3.connect("tutorial.db")
+            # cur = con.cursor()
+            # cur.execute("""
+            #                             INSERT INTO chat VALUES (random(2),assistantQues,userAns,assistantNextQues""")
+            # con.commit()
             print(response)
             ct = response.choices[0].message.content;
             return ct
