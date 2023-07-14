@@ -182,29 +182,23 @@ class hello:
         @self.app.route('/chat-botx', methods=['POST'])
         def chat_botx():
             data = json.loads(request.data)
-            assistantQues = data['requests']['ques'];
+            assistantQues = "";
             userAns = data['requests']['ans'];
-            assistantNextQues = data['requests']['nextQues'];
+
             details = data['requests']['details'];
             objective = data['requests']['objective'];
 
-            if s is None or s == '':
+            if assistantNextQues is None or assistantNextQues == '':
                 contVal = "You are an bot that receives the response from the user for the questions raised by assistant and answers him politely and calmly in thanking tone for his inputs in one short reply that does not raise question to user";
-                assistantNextQues = "";
             else:
-                contVal = "You are an bot that have bussiness details and objectives and receives the three inputs i.e. 1) Question asked by assistant 2) response from the user for the question asked by assistant 3) next ques that must be asked by assistant. you need to return the next simple brief question that must me asked from user considering user ans and assistant Next Ques. Always be polite and calm in conversation. Make sure not to ask any such questions that can't be derived from input data given to system. the context for conversation is related to " + "1. Details : " + details + "2.Objective : " + objective + ". Make sure the user must not feel that he is talking to bot. In case you don't are confused return the assistant Next Ques as response";
+                assistantNextQues = data['requests']['nextQues'];
+                contVal = "You are an bot that have bussiness details and objectives and receives the three inputs i.e. 1) Question asked by assistant : "+ assistantQues +"2) response from the user for the question asked by assistant : " + userAns + "3) next ques that must be asked by assistant : " + assistantNextQues +". you need to return the next simple brief question that must me asked from user considering user ans and assistant Next Ques ,also acknowledge in thanking tone for user ans provided. Make sure not to ask any such questions that can't be derived from input data given to system. the context for conversation is related to " + "1. Details : " + details + "2.Objective : " + objective + ". Make sure the user must not feel that he is talking to bot. In case you don't are confused return the assistant Next Ques as response";
 
             response = openai.ChatCompletion.create(
                 engine="dorkupinetreeGPT35",
                 messages=[
                     {"role": "system",
-                     "content": contVal},
-                     {"role": "assistant",
-                      "content": "assistant ques " + assistantQues},
-                    {"role": "user",
-                     "content": "user ans is " + userAns},
-                    {"role": "assistant",
-                     "content": "assistant Next Ques is " + assistantNextQues}
+                     "content": contVal}
                 ],
                 temperature=0.1,
                 max_tokens=800,
